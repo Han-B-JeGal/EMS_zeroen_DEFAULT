@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DashboardDAO">
+
+	<select id="selectSysdate"  parameterType="hashMap" resultType="java.lang.String">
+		SELECT GETDATE()
+	</select>
+	
+	<select id="dashboard001_statusDemand"  parameterType="hashMap" resultType="hashMap">
+		WITH TEMP_OBJECT AS (
+		SELECT
+			A.S_GROUP_CODE,
+			A.S_G_CODE,
+			A.S_G_NAME,
+			A.S_L_CODE,
+			A.S_L_NAME,
+			B.S_TAG_ID
+		FROM
+			TB_EL A,
+			TB_OBJECT B
+		WHERE
+			A.S_GROUP_CODE = B.S_OBJECT_GROUP
+			AND A.S_G_CODE = B.S_G_CODE
+			AND A.S_L_CODE = B.S_L_CODE
+			AND A.S_GROUP_CODE = 'E'
+			AND B.S_USE_YN = 'Y')
+		SELECT
+			'cum_today' AS DIV,/*금일 누적*/
+			ISNULL(ROUND(MAX(A.N_MIN_VALUE) / 1000, 0), 0) AS VALUE
+		FROM
+			TB_USE_VALUE_TOTAL A,
+			TEMP_OBJECT B
+		WHERE
+			A.S_TAG_ID = B.S_TAG_ID
+			AND B.S_G_CODE = 'M'
+			AND B.S_L_CODE = 'M1'
+			AND S_DIV = 'HH'
+			AND REPLACE(CONVERT(CHAR(10), A.D_ST_TIME, 112), '-', '') = CONVERT(CHAR(8), GETDATE(), 112)
+		UNION ALL
+		SELECT
+			'cum_yesterday' AS DIV,/*전일 누적*/
+			ISNULL(ROUND(MAX(A.N_MIN_VALUE) / 1000, 0), 0) AS VALUE
+		FROM
+			TB_USE_VALUE_TOTAL A,
+			TEMP_OBJECT B
+		WHERE
+			A.S_TAG_ID = B.S_TAG_ID
+			AND B.S_G_CODE = 'M'
+			AND B.S_L_CODE = 'M1'
+			AND S_DIV = 'DD'
+			AND REPLACE(CONVERT(CHAR(10), A.D_ST_TIME, 112), '-', '') = CONVERT(CHAR(8), GETDATE(), 112) - 1
+		UNION ALL
+		SELECT
+			'cum_preMonth' AS DIV,/*전월 누적*/
+			ISNULL(ROUND(MAX(A.N_MIN_VALUE) / 1000, 0), 0) AS VALUE
+		FROM
+			TB_USE_VALUE_TOTAL A,
+			TEMP_OBJECT B
+		WHERE
+			A.S_TAG_ID = B.S_TAG_ID
+			AND B.S_G_CODE = 'M'
+			AND B.S_L_CODE = 'M1'
+			AND S_DIV = 'MM'
+			AND REPLACE(CONVERT(CHAR(8), A.D_ST_TIME, 112), '-', '') = DATEADD(MM, -1, GETDATE())
+		UNION ALL
+		SELECT
+			'cum_month' AS DIV,/*금월 평균*/
+			ISNULL(ROUND(AVG(A.N_MIN_VALUE) / 1000, 0), 0) AS VALUE
+		FROM
+			TB_USE_VALUE_TOTAL A,
+			TEMP_OBJECT B
+		WHERE
+			A.S_TAG_ID = B.S_TAG_ID
+			AND B.S_G_CODE = 'M'
+			AND B.S_L_CODE = 'M1'
+			AND S_DIV = 'DD'
+			AND REPLACE(CONVERT(CHAR(8), A.D_ST_TIME, 112), '-', '') = CONVERT(CHAR(6), GETDATE(), 112)
+	</select>
+	
+	<select id="dashboard001_statusDemandFloor"  parameterType="hashMap" resultType="hashMap">
+		WITH TEMP_OBJECT AS (
+		SELECT
+			A.S_GROUP_CODE,
+			A.S_G_CODE,
+			A.S_G_NAME,
+			A.S_L_CODE,
+			A.S_L_NAME,
+			B.S_LOAD_FLOOR,
+			B.S_TAG_ID
+		FROM
+			TB_EL A,
+			TB_OBJECT B
+		WHERE
+			A.S_GROUP_CODE = B.S_OBJECT_GROUP
+			AND A.S_G_CODE = B.S_G_CODE
+			AND A.S_L_CODE = B.S_L_CODE
+			AND A.S_GROUP_CODE = 'E'
+			AND B.S_USE_YN = 'Y'),
+		TEMP_TM AS (
+		SELECT
+			MAX(A.N_MIN_VALUE) AS VALUE
+		FROM
+			TB_USE_VALUE_TOTAL A,
+			TEMP_OBJECT B
+		WHERE
+			A.S_TAG_ID = B.S_TAG_ID
+			AND B.S_G_CODE = 'M'
+			AND A.S_DIV = 'HH'
+			AND B.S_LOAD_FLOOR = 'TM'
+			AND REPLACE(CONVERT(CHAR(10), A.D_ST_TIME, 112), '-', '') = CONVERT(CHAR(8), GETDATE(), 112))
+		SELECT
+			CASE
+				WHEN A.DIV = 'TM' THEN '건물'
+				WHEN A.DIV = 'T1' THEN '1층'
+				WHEN A.DIV = 'T2' THEN '2층'
+				WHEN A.DIV = 'T3' THEN '3층'
+				WHEN A.DIV = 'T4' THEN '4층'
+				ELSE '별관'
+			END AS DIV,
+			ISNULL(ROUND(A.VALUE / 1000, 0), 0) AS VALUE,
+			ROUND(A.VALUE / B.VALUE * 100, 1) AS PERVALUE
+		FROM
+			(
+			SELECT
+				B.S_LOAD_FLOOR AS DIV,
+				MAX(A.N_MIN_VALUE) AS VALUE
+			FROM
+				TB_USE_VALUE_TOTAL A,
+				TEMP_OBJECT B
+			WHERE
+				A.S_TAG_ID = B.S_TAG_ID
+				AND B.S_G_CODE = 'M'
+				AND A.S_DIV = 'HH'
+				AND B.S_LOAD_FLOOR IN ('TM',
+				'T1',
+				'T2',
+				'T3',
+				'T4')
+				AND REPLACE(CONVERT(CHAR(10), A.D_ST_TIME, 112), '-', '') = CONVERT(CHAR(8), GETDATE(), 112)
+			GROUP BY
+				B.S_LOAD_FLOOR) A,
+			TEMP_TM B
+		ORDER BY CASE WHEN A.DIV = 'TM' THEN 'T0' ELSE A.DIV END
+	</select>
+	
+	<select id="dashboard001_usageStatusByApplication"  parameterType="hashMap" resultType="hashMap">
+		WITH TEMP_OBJECT AS (
+		SELECT
+			A.S_GROUP_CODE,
+			A.S_G_CODE,
+			A.S_G_NAME,
+			A.S_L_CODE,
+			A.S_L_NAME,
+			B.S_LOAD_FLOOR,
+			B.S_TAG_ID
+		FROM
+			TB_EL A,
+			TB_OBJECT B
+		WHERE
+			A.S_GROUP_CODE = B.S_OBJECT_GROUP
+			AND A.S_G_CODE = B.S_G_CODE
+			AND A.S_L_CODE = B.S_L_CODE
+			AND A.S_GROUP_CODE = 'E'
+			AND B.S_USE_YN = 'Y'),
+		TEMP_SUM AS (
+		SELECT
+			SUM(A.VALUE) AS VALUE
+		FROM
+			(
+			SELECT
+				B.S_G_CODE AS DIV,
+				ISNULL(MAX(A.N_MIN_VALUE),
+				0) AS VALUE
+			FROM
+				TB_USE_VALUE_TOTAL A,
+				TEMP_OBJECT B
+			WHERE
+				A.S_TAG_ID = B.S_TAG_ID
+				AND B.S_G_CODE &lt;> 'M'
+				AND A.S_DIV = 'HH'
+				<choose>
+					<when test='key == "hour"'>
+						AND REPLACE(CONVERT(CHAR(10), A.D_ST_TIME, 112), '-', '') = CONVERT(CHAR(8), GETDATE(), 112)
+					</when>
+					<when test='key == "day"'>
+						AND REPLACE(CONVERT(CHAR(10), A.D_ST_TIME, 112), '-', '') BETWEEN CONVERT(CHAR(10), DATEADD(MM, -1, GETDATE()), 112) AND CONVERT(CHAR(8), GETDATE(), 112)
+					</when>
+					<when test='key == "month"'>
+						AND REPLACE(CONVERT(CHAR(10), A.D_ST_TIME, 112), '-', '') BETWEEN CONVERT(CHAR(10), DATEADD(MM, -12, GETDATE()), 112) AND CONVERT(CHAR(8), GETDATE(), 112)
+					</when>
+				</choose>
+			GROUP BY
+				B.S_G_CODE) A )
+		SELECT
+			A.S_G_CODE AS DIV,
+			A.S_G_NAME AS DIVNM,
+			ROUND(A.VALUE / 1000, 0) AS VALUE,
+			ROUND(A.VALUE / B.VALUE * 100, 1) AS PERVALUE
+		FROM
+			(
+			SELECT
+				B.S_G_CODE,
+				B.S_G_NAME,
+				ISNULL(MAX(A.N_MIN_VALUE),
+				0) AS VALUE
+			FROM
+				TB_USE_VALUE_TOTAL A,
+				TEMP_OBJECT B
+			WHERE
+				A.S_TAG_ID = B.S_TAG_ID
+				AND B.S_G_CODE IN ('A', 'B', 'H')
+				AND A.S_DIV = 'HH'
+				<choose>
+					<when test='key == "hour"'>
+						AND REPLACE(CONVERT(CHAR(10), A.D_ST_TIME, 112), '-', '') = CONVERT(CHAR(8), GETDATE(), 112)
+					</when>
+					<when test='key == "day"'>
+						AND REPLACE(CONVERT(CHAR(10), A.D_ST_TIME, 112), '-', '') BETWEEN CONVERT(CHAR(10), DATEADD(MM, -1, GETDATE()), 112) AND CONVERT(CHAR(8), GETDATE(), 112)
+					</when>
+					<when test='key == "month"'>
+						AND REPLACE(CONVERT(CHAR(10), A.D_ST_TIME, 112), '-', '') BETWEEN CONVERT(CHAR(10), DATEADD(MM, -12, GETDATE()), 112) AND CONVERT(CHAR(8), GETDATE(), 112)
+					</when>
+				</choose>
+			GROUP BY
+				B.S_G_CODE,
+				B.S_G_NAME) A,
+			TEMP_SUM B
+		ORDER BY
+			A.S_G_CODE
+	</select>
+	
+	<select id="dashboard001_usageStatusByPower"  parameterType="hashMap" resultType="hashMap">
+		SELECT
+			D_ST_TIME,
+			A,
+			B,
+			H
+		FROM
+			(
+			SELECT
+				<choose>
+					<when test='key == "hour"'>
+						B.D_ST_TIME,
+					</when>
+					<when test='key == "day"'>
+						B.D_ST_TIME,
+					</when>
+					<when test='key == "month"'>						
+						SUBSTRING(B.D_ST_TIME, 1, 7) AS D_ST_TIME,
+					</when>
+				</choose>
+				A.S_G_CODE,
+				SUM(B.N_USE_VALUE) AS N_USE_VALUE
+			FROM
+				TB_OBJECT A,
+				TB_USE_VALUE_TOTAL B
+			WHERE
+				A.S_TAG_ID = B.S_TAG_ID
+				AND A.S_USE_YN = 'Y'
+				AND A.S_G_CODE IN ('A',
+				'B',
+				'H')
+				<choose>
+					<when test='key == "hour"'>
+						AND B.S_DIV = 'HH'
+						AND B.D_ST_TIME BETWEEN SUBSTRING(CONVERT(VARCHAR(30), DATEADD(hh, -24, GETDATE()), 120), 1, 13) AND SUBSTRING(CONVERT(VARCHAR(30), GETDATE(), 120), 1, 13)
+					</when>
+					<when test='key == "day"'>
+						AND B.S_DIV = 'DD'
+						AND B.D_ST_TIME BETWEEN SUBSTRING(CONVERT(VARCHAR(30), DATEADD(dd, -30, GETDATE()), 120), 1, 10) AND SUBSTRING(CONVERT(VARCHAR(30), GETDATE(), 120), 1, 10)
+					</when>
+					<when test='key == "month"'>
+						AND B.S_DIV = 'DD'
+						AND SUBSTRING(B.D_ST_TIME, 1, 7) BETWEEN SUBSTRING(CONVERT(VARCHAR(30), DATEADD(mm, -12, GETDATE()), 120), 1, 7) AND SUBSTRING(CONVERT(VARCHAR(30), GETDATE(), 120), 1, 7)
+					</when>
+				</choose>
+			GROUP BY
+				<choose>
+					<when test='key == "hour"'>
+						B.D_ST_TIME,
+					</when>
+					<when test='key == "day"'>
+						B.D_ST_TIME,
+					</when>
+					<when test='key == "month"'>						
+						SUBSTRING(B.D_ST_TIME, 1, 7),
+					</when>
+				</choose>
+				A.S_G_CODE) AS VALUE_DIV PIVOT (SUM(N_USE_VALUE) FOR S_G_CODE IN (A,
+			B,
+			H) ) AS PV
+		ORDER BY
+			D_ST_TIME
+	</select>
+	
+	<select id="dashboard001_heatingCoolingLoadStatus"  parameterType="hashMap" resultType="hashMap">
+		SELECT
+			D_ST_TIME,
+			F, G
+		FROM
+			(SELECT
+			B.D_ST_TIME,
+			A.S_G_CODE,
+			SUM(B.N_USE_VALUE) AS N_USE_VALUE
+		FROM
+			TB_OBJECT A,
+			TB_USE_VALUE_TOTAL B
+		WHERE
+			A.S_TAG_ID = B.S_TAG_ID
+			AND A.S_USE_YN = 'Y'
+			AND A.S_G_CODE IN ('F', 'G')
+			AND B.S_DIV = 'HH'
+			AND B.D_ST_TIME BETWEEN SUBSTRING(CONVERT(VARCHAR(30), DATEADD(hh, -24, GETDATE()), 120), 1, 13) AND SUBSTRING(CONVERT(VARCHAR(30), GETDATE(), 120), 1, 13)
+		GROUP BY
+			B.D_ST_TIME,
+			A.S_G_CODE) AS VALUE_DIV PIVOT (SUM(N_USE_VALUE) FOR S_G_CODE IN (F, G) ) AS PV
+		ORDER BY
+			D_ST_TIME
+	</select>
+	
+	<select id="dashboard001_currentStatusComparedToRecent"  parameterType="hashMap" resultType="hashMap">
+		SELECT
+			A.D_ST_TIME,
+			A.N_USE_VALUE AS PREDAY,
+			B.N_USE_VALUE AS TODAY
+		FROM
+			(
+			SELECT
+				SUBSTRING(A.D_ST_TIME, 12, 2) AS D_ST_TIME,
+				ROUND(AVG(A.N_USE_VALUE) / 1000, 0) AS N_USE_VALUE
+			FROM
+				(
+				SELECT
+					B.D_ST_TIME,
+					SUM(B.N_USE_VALUE) AS N_USE_VALUE
+				FROM
+					TB_OBJECT A,
+					TB_USE_VALUE_TOTAL B
+				WHERE
+					A.S_TAG_ID = B.S_TAG_ID
+					AND A.S_USE_YN = 'Y'
+					AND A.S_G_CODE &lt;> 'M'
+					AND B.S_DIV = 'HH'
+					AND B.D_ST_TIME BETWEEN SUBSTRING(CONVERT(VARCHAR(30), DATEADD(dd, -5, GETDATE()), 120), 1, 13) AND SUBSTRING(CONVERT(VARCHAR(30), DATEADD(DD, -1, GETDATE()), 120), 1, 13)
+				GROUP BY
+					B.D_ST_TIME) A
+			GROUP BY
+				SUBSTRING(A.D_ST_TIME, 12, 2)) A
+		LEFT OUTER JOIN (
+			SELECT
+				SUBSTRING(B.D_ST_TIME, 12, 2) AS D_ST_TIME,
+				ROUND(SUM(B.N_USE_VALUE) / 1000, 0) AS N_USE_VALUE
+			FROM
+				TB_OBJECT A,
+				TB_USE_VALUE_TOTAL B
+			WHERE
+				A.S_TAG_ID = B.S_TAG_ID
+				AND A.S_USE_YN = 'Y'
+				AND A.S_G_CODE &lt;> 'M'
+				AND B.S_DIV = 'HH'
+				AND SUBSTRING(B.D_ST_TIME, 1, 10) = SUBSTRING(CONVERT(VARCHAR(30), GETDATE(), 120), 1, 10)
+			GROUP BY
+				SUBSTRING(B.D_ST_TIME, 12, 2)) B ON
+			A.D_ST_TIME = B.D_ST_TIME
+	</select>
+	
+	<select id="dashboard001_electricityConsumptionComparedToPreviousDay"  parameterType="hashMap" resultType="hashMap">
+		SELECT
+			A.D_ST_TIME,
+			A.N_USE_VALUE AS PREDAY,
+			B.N_USE_VALUE AS TODAY
+		FROM
+			(
+			SELECT
+				SUBSTRING(B.D_ST_TIME, 12, 2) AS D_ST_TIME,
+				ROUND(SUM(B.N_USE_VALUE) / 1000, 0) AS N_USE_VALUE
+			FROM
+				TB_OBJECT A,
+				TB_USE_VALUE_TOTAL B
+			WHERE
+				A.S_TAG_ID = B.S_TAG_ID
+				AND A.S_USE_YN = 'Y'
+				AND A.S_G_CODE &lt;> 'M'
+				AND B.S_DIV = 'HH'
+				AND SUBSTRING(B.D_ST_TIME, 1, 10) = SUBSTRING(CONVERT(VARCHAR(30), DATEADD(dd, -1, GETDATE()), 120), 1, 10)
+			GROUP BY
+				SUBSTRING(B.D_ST_TIME, 12, 2)) A
+		LEFT OUTER JOIN (
+			SELECT
+				SUBSTRING(B.D_ST_TIME, 12, 2) AS D_ST_TIME,
+				ROUND(SUM(B.N_USE_VALUE) / 1000, 0) AS N_USE_VALUE
+			FROM
+				TB_OBJECT A,
+				TB_USE_VALUE_TOTAL B
+			WHERE
+				A.S_TAG_ID = B.S_TAG_ID
+				AND A.S_USE_YN = 'Y'
+				AND A.S_G_CODE &lt;> 'M'
+				AND B.S_DIV = 'HH'
+				AND SUBSTRING(B.D_ST_TIME, 1, 10) = SUBSTRING(CONVERT(VARCHAR(30), GETDATE(), 120), 1, 10)
+			GROUP BY
+				SUBSTRING(B.D_ST_TIME, 12, 2)) B ON
+			A.D_ST_TIME = B.D_ST_TIME
+	</select>
+	
+</mapper>

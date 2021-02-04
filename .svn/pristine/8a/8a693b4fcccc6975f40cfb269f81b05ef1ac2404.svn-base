@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+	<definition name="popupTemplate" template="/WEB-INF/jsp/com/layout/popup/popupTemplate.jsp">
+		<put-attribute name="title" value="ROOTECH MES" />
+		<put-attribute name="keywords" value="ROOTECH MES" />
+		<put-attribute name="url" value="http://" />
+		<put-attribute name="type" value="website" />
+		<put-attribute name="description" value="ROOTECH MES" />
+		<put-attribute name="author" value="헤더라임" />
+	</definition>
+	<definition name="*/*/*/*/*/*/*.popup" extends="popupTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}/{6}/{7}.jsp" />
+	</definition>
+	<definition name="*/*/*/*/*/*.popup" extends="popupTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}/{6}.jsp" />
+	</definition>
+	<definition name="*/*/*/*/*.popup" extends="popupTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}.jsp" />
+	</definition>
+	<definition name="*/*/*/*.popup" extends="popupTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" />
+	</definition>
+	<definition name="*/*/*.popup" extends="popupTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+	</definition>
+	<definition name="*/*.popup" extends="popupTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}.jsp" />
+	</definition>
+	<definition name="blankTemplate" template="/WEB-INF/jsp/com/layout/blank/blankTemplate.jsp">
+		<put-attribute name="title" value="ROOTECH MES" />
+		<put-attribute name="keywords" value="ROOTECH MES" />
+		<put-attribute name="url" value="http://" />
+		<put-attribute name="type" value="website" />
+		<put-attribute name="description" value="ROOTECH MES 홈페이지에 오신 것을 환영합니다." />
+		<put-attribute name="author" value="헤더라임" />
+	</definition>
+	<definition name="*/*/*/*/*/*/*.blank" extends="blankTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}/{6}/{7}.jsp" />
+	</definition>
+	<definition name="*/*/*/*/*/*.blank" extends="blankTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}/{6}.jsp" />
+	</definition>
+	<definition name="*/*/*/*/*.blank" extends="blankTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}.jsp" />
+	</definition>
+	<definition name="*/*/*/*.blank" extends="blankTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" />
+	</definition>
+	<definition name="*/*/*.blank" extends="blankTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+	</definition>
+	<definition name="*/*.blank" extends="blankTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}.jsp" />
+	</definition>
+	<definition name="onepageTemplate" template="/WEB-INF/jsp/com/layout/blank/onepageTemplate.jsp">
+		<put-attribute name="title" value="ROOTECH MES" />
+		<put-attribute name="keywords" value="ROOTECH MES" />
+		<put-attribute name="url" value="http://" />
+		<put-attribute name="type" value="website" />
+		<put-attribute name="description" value="ROOTECH MES" />
+		<put-attribute name="author" value="헤더라임" />
+	</definition>
+	<definition name="*/*/*/*/*/*/*.onepage" extends="onepageTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}/{6}/{7}.jsp" />
+	</definition>
+	<definition name="*/*/*/*/*/*.onepage" extends="onepageTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}/{6}.jsp" />
+	</definition>
+	<definition name="*/*/*/*/*.onepage" extends="onepageTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}.jsp" />
+	</definition>
+	<definition name="*/*/*/*.onepage" extends="onepageTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" />
+	</definition>
+	<definition name="*/*/*.onepage" extends="onepageTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+	</definition>
+	<definition name="*/*.onepage" extends="onepageTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}.jsp" />
+	</definition>
+	<definition name="mainTemplate" template="/WEB-INF/jsp/com/layout/main/mainTemplate.jsp">
+		<put-attribute name="navbar-header" value="/WEB-INF/jsp/com/layout/main/navbar-header.jsp" />
+		<put-attribute name="header-nav" value="/WEB-INF/jsp/com/layout/main/header-nav.jsp" />
+		<put-attribute name="sidebar" value="/WEB-INF/jsp/com/layout/main/sidebar.jsp" />
+		<put-attribute name="breadcrumb" value="/WEB-INF/jsp/com/layout/main/breadcrumb.jsp" />
+		<put-attribute name="page-header" value="/WEB-INF/jsp/com/layout/main/page-header.jsp" />
+		<put-attribute name="theme-panel" value="/WEB-INF/jsp/com/layout/main/theme-panel.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/com/layout/main/footer.jsp" />
+		<put-attribute name="title" value="ROOTECH MES" />
+		<put-attribute name="keywords" value="ROOTECH MES" />
+		<put-attribute name="url" value="" />
+		<put-attribute name="type" value="website" />
+		<put-attribute name="description" value="ROOTECH MES" />
+		<put-attribute name="author" value="헤더라임" />
+	</definition>
+	<definition name="*/*/*/*/*/*/*.main" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}/{6}/{7}.jsp" />
+	</definition>
+	<definition name="*/*/*/*/*/*.main" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}/{6}.jsp" />
+	</definition>
+	<definition name="*/*/*/*/*.main" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}.jsp" />
+	</definition>
+	<definition name="*/*/*/*.main" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" />
+	</definition>
+	<definition name="*/*/*.main" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+	</definition>
+	<definition name="*/*.main" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}.jsp" />
+	</definition>
+</tiles-definitions>
