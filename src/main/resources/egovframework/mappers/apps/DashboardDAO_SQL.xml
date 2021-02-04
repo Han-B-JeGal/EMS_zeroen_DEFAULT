@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="DashboardDAO">
+<mapper namespace="getData">
 
 	<select id="selectSysdate"  parameterType="hashMap" resultType="java.lang.String">
 		SELECT GETDATE()
 	</select>
 	
-	<select id="dashboardDAO_currentData" parameterType="java.util.Map" resultType="hashMap">
+	<select id="dashboardDAO_currentData" resultType="hashMap">
 		<![CDATA[
 			SELECT TOP 1 N_TEMP, N_HUM, N_ILL, N_CO2, N_OCC FROM dbo.TB_SENSOR ORDER BY D_INSERT_TIME DESC
 		]]>
 	</select>
 	
-	<select id="dashboard001_statusDemand"  parameterType="hashMap" resultType="hashMap">
+	<select id="dashboard001_statusDemand" parameterType="hashMap" resultType="hashMap">
 		WITH TEMP_OBJECT AS (
 		SELECT
 			A.S_GROUP_CODE,
