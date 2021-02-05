@@ -26,11 +26,11 @@ public class DashboardController {
 //		return "apps/dashboard002.jsp";
 //	}
 
-	@RequestMapping(value="/ems_zeroen")
+	@RequestMapping(value="/dashboard002.do")
 	public String displayData(Model model) throws Exception{
 		List<Object> dashboardData = dashboardService.dashboardDisplayData();
 		model.addAttribute(dashboardData);
 		
-		return "apps/dashboard002.jsp";
+		return "apps/dashboard002";
 	}
 }
