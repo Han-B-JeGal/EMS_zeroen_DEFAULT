@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import apps.dashboard.service.DashboardService;
@@ -26,8 +27,9 @@ public class DashboardController {
 //	}
 
 	@RequestMapping(value="/ems_zeroen")
-	public String displayData(List<Object> resultData) throws Exception{
+	public String displayData(Model model) throws Exception{
 		List<Object> dashboardData = dashboardService.dashboardDisplayData();
+		model.addAttribute(dashboardData);
 		
 		return "apps/dashboard002.jsp";
 	}
