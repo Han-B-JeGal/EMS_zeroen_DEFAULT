@@ -31,6 +31,9 @@ public class DashboardController {
 		List<Object> dashboardData = dashboardService.dashboardDisplayData();
 		model.addAttribute(dashboardData);
 		
+//		TEST
+		System.out.println(dashboardData);
+		
 		return "apps/dashboard002";
 	}
 }
