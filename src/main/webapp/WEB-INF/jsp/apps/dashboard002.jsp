@@ -82,35 +82,35 @@ desired effect
 								<div class="icon icon1">
 									<span class="ico"></span>
 								</div>
-								<span class="data">${dashboardData.get(0) }</span>
+								<span class="data">${model.get(0) }</span>
 							</div>
 							<div class="cont">
 								<span class="title">습도</span>
 								<div class="icon icon2">
 									<span class="ico"></span>
 								</div>
-								<span class="data">${dashboardData.get(1) }</span>
+								<span class="data">${model.get(1) }</span>
 							</div>
 							<div class="cont">
 								<span class="title">조도</span>
 								<div class="icon icon3">
 									<span class="ico"></span>
 								</div>
-								<span class="data">${dashboardData.get(2) }</span>
+								<span class="data">${model.get(2) }</span>
 							</div>
 							<div class="cont">
 								<span class="title">탄소농도</span>
 								<div class="icon icon4">
 									<span class="ico"></span>
 								</div>
-								<span class="data">${dashboardData.get(3) }</span>
+								<span class="data">${model.get(3) }</span>
 							</div>
 							<div class="cont">
 								<span class="title">재실</span>
 								<div class="icon icon5">
 									<span class="ico"></span>
 								</div>
-								<span class="data">${dashboardData.get(4) }</span>
+								<span class="data">${model.get(4) }</span>
 							</div>
 						</div>
 						<div class="box_wrap box2">
