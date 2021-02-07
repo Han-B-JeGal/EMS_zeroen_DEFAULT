@@ -27,12 +27,10 @@ public class DashboardController {
 //	}
 
 	@RequestMapping(value="/ems_zeroen")
-	public String displayData(Model model) throws Exception{
+	public String displayData(Model model) throws Exception{		
 		List<Object> dashboardData = dashboardService.dashboardDisplayData();
 		model.addAttribute(dashboardData);
 		
-//		forTEST
-		System.out.println(dashboardData);
 		
 		return "apps/dashboard002";
 	}
