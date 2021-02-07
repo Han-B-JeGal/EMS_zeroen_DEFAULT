@@ -7,7 +7,7 @@
 		SELECT GETDATE()
 	</select>
 	
-	<select id="dashboardDAO_currentData" resultType="hashMap">
+	<select id="dashboardDAO_currentData" resultType="List">
 			SELECT TOP 1 N_TEMP, N_HUM, N_ILL, N_CO2, N_OCC FROM dbo.TB_SENSOR ORDER BY D_INSERT_TIME DESC
 	</select>
 	
